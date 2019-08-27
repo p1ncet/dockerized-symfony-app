@@ -1,0 +1,78 @@
+version: "2.2"
+
+services:
+  php:
+    image: php
+    build:
+      context:
+        containers/php
+    working_dir: /app
+    volumes:
+      - ../:/app
+      - ./containers/php/conf/my.ini:/usr/local/etc/php/conf.d/my.ini
+      - ./.bash_history:/root/.bash_history
+    ports:
+      - ${SERVER_PORT}:8000
+    links:
+      - postgres
+      - elasticsearch
+      - redis
+    environment:
+      PROMPT_COMMAND: history -a;history -r
+#      PHP_IDE_CONFIG: serverName=docker
+#      XDEBUG_REMOTE_HOST: ${XDEBUG_REMOTE_HOST}
+#      REMOTE_CONNECT_BACK: ${REMOTE_CONNECT_BACK}
+
+  postgres:
+    image: postgres:alpine
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: example
+
+  adminer:
+    image: adminer
+    ports:
+      - ${ADMINER_PORT}:8080
+
+  elasticsearch:
+    image: elasticsearch:6.8.2
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+#      - ./containers/symfony-elasticsearch/hunspell:/usr/share/elasticsearch/config/hunspell
+#    entrypoint:
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#      - bootstrap.memory_lock=true
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+
+  kibana:
+    image: kibana:6.8.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - ${KIBANA_PORT}:5601
+    links:
+      - elasticsearch
+
+#  cerebro:
+#    image: lmenezes/cerebro
+#    container_name: symfony-cerebro
+  #    hostname: symfony-cerebro
+#    links:
+#      - elasticsearch
+#    ports:
+#      - 9201:9000
+
+  redis:
+    image: redis:4-alpine
+#    ports:
+#      - 6379:6379
+
+volumes:
+  postgres:
+    driver: local
+  elasticsearch:
+    driver: local

@@ -1,0 +1,6 @@
+# Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/Resources/doc/setup.md
+fos_elastica:
+    clients:
+        default: { host: '%env(resolve:ELASTICSEARCH_HOST)%', port: '%env(resolve:ELASTICSEARCH_PORT)%' }
+    indexes:
+        app: null

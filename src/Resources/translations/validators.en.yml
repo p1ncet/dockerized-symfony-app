@@ -1,0 +1,1 @@
+product.price.invalid: The value {{ value }} is not a type {{ type }} valid.
