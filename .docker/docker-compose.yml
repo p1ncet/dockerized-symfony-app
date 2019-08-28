@@ -1,27 +1,41 @@
 version: "2.2"
 
 services:
-  php:
-    image: php
+  nginx:
+    image: nginx:alpine
+    working_dir: /app
+    ports:
+      - ${SERVER_PORT}:80
+    volumes:
+#      - ./containers/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./containers/nginx/conf/conf.d/:/etc/nginx/conf.d
+      - ../:/app
+      - ../var/log/:/var/log/nginx
+    links:
+      - php-fpm
+
+  php-fpm:
     build:
       context:
-        containers/php
+        ./containers/php-fpm
+    image: php-fpm:last
     working_dir: /app
     volumes:
+      - ./containers/php-fpm/conf/my.ini:/usr/local/etc/php/conf.d/my.ini
       - ../:/app
-      - ./containers/php/conf/my.ini:/usr/local/etc/php/conf.d/my.ini
+      - ../var/log/:/var/log/php-fpm
       - ./.bash_history:/root/.bash_history
-    ports:
-      - ${SERVER_PORT}:8000
     links:
       - postgres
       - elasticsearch
       - redis
+    expose:
+      - 10000 #for xdebug
     environment:
       PROMPT_COMMAND: history -a;history -r
-#      PHP_IDE_CONFIG: serverName=docker
-#      XDEBUG_REMOTE_HOST: ${XDEBUG_REMOTE_HOST}
-#      REMOTE_CONNECT_BACK: ${REMOTE_CONNECT_BACK}
+      PHP_IDE_CONFIG: serverName=${SERVER_NAME}
+      XDEBUG_REMOTE_HOST: ${XDEBUG_REMOTE_HOST}
+      REMOTE_CONNECT_BACK: ${REMOTE_CONNECT_BACK}
 
   postgres:
     image: postgres:alpine
@@ -59,8 +73,6 @@ services:
 
 #  cerebro:
 #    image: lmenezes/cerebro
-#    container_name: symfony-cerebro
-  #    hostname: symfony-cerebro
 #    links:
 #      - elasticsearch
 #    ports:

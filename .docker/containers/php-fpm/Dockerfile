@@ -1,4 +1,4 @@
-FROM php:7.2
+FROM php:7.2-fpm
 
 # Обновляем и ставим необходимые пакеты
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -33,12 +33,3 @@ RUN curl --silent --fail --location --retry 3 --output /tmp/installer.php --url 
  && composer --ansi --version --no-interaction \
  && rm -f /tmp/installer.php \
  && find /tmp -type d -exec chmod -v 1777 {} +
-
-#symfony
-#RUN curl -sS https://get.symfony.com/cli/installer | bash && mv /root/.symfony/bin/symfony /usr/local/bin/symfony
-#ENV PATH "$HOME/.symfony/bin:$PATH"
-
-STOPSIGNAL SIGQUIT
-
-
-CMD php bin/console server:run 0.0.0.0:8000
